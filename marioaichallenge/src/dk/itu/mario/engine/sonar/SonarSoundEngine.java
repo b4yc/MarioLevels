@@ -76,7 +76,9 @@ public class SonarSoundEngine implements Runnable
     {
         try
         {
-            return SampleLoader.loadSample(resourceName);
+            SampleLoader sl = SampleLoader.getInstance();
+            sl.loadSample(resourceName);
+        	return sl.getSample();
         }
         catch (Exception e)
         {

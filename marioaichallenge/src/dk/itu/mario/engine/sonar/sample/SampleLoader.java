@@ -11,22 +11,59 @@ import dk.itu.mario.res.ResourcesManager;
 
 public class SampleLoader
 {
+	/**
+	 * Private static instance of only SampleLoader object allowed in the system
+	 */
+	private static SampleLoader singletonSampleLoader = null;
+	
+	/**
+	 * Private sample held by SampleLoader
+	 */
+	private SonarSample sample;
+	
+	/**
+	 * Private constructor so no other classes can construct a new SampleLoader
+	 */
+	private SampleLoader() {
+		sample = null;
+	}
+	
+	/**
+	 * Static function to get access to the only instance available and create a new 
+	 * instance if not yet initialized
+	 * @return singleton instance of SampleLoader
+	 */
+	public static SampleLoader getInstance() {
+		if(singletonSampleLoader == null)
+			singletonSampleLoader = new SampleLoader();
+		return singletonSampleLoader;
+	}
+	
+	/**
+	 * getter for SonarSample data, accesseible through instance of SampleLoader
+	 * @return audio sample requested
+	 */
+	public SonarSample getSample() {
+		return sample;
+	}
+	
+	
     /**
      * Loads a sample from an url
      */
-    public static SonarSample loadSample(String resourceName) throws UnsupportedAudioFileException, IOException
+    public void loadSample(String resourceName) throws UnsupportedAudioFileException, IOException
     {
         // Hack to prevent "mark/reset not supported" on some systems
         InputStream in=ResourcesManager.class.getResourceAsStream(resourceName);
         byte[] d = rip(in);
         AudioInputStream ais = AudioSystem.getAudioInputStream(new ByteArrayInputStream(d));
-        return buildSample(rip(ais), ais.getFormat());
+        sample = buildSample(rip(ais), ais.getFormat());
     }
 
     /**
      * Rips the entire contents of an inputstream into a byte array
      */
-    private static byte[] rip(InputStream in) throws IOException
+    private byte[] rip(InputStream in) throws IOException
     {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         byte[] b = new byte[4096];
@@ -44,7 +81,7 @@ public class SampleLoader
     /**
      * Reorganizes audio sample data into the intenal sonar format
      */
-    private static SonarSample buildSample(byte[] b, AudioFormat af) throws UnsupportedAudioFileException
+    private SonarSample buildSample(byte[] b, AudioFormat af) throws UnsupportedAudioFileException
     {
         // Rip audioformat data
         int channels = af.getChannels();
